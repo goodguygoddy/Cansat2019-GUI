@@ -19,6 +19,9 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
@@ -26,7 +29,7 @@
       <x>11</x>
       <y>11</y>
       <width>1901</width>
-      <height>35</height>
+      <height>41</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -131,6 +134,9 @@
          <property name="mouseTracking">
           <bool>false</bool>
          </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -160,6 +166,9 @@
            <weight>75</weight>
            <bold>true</bold>
           </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
          </property>
          <property name="text">
           <string/>
@@ -276,7 +285,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>5</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -299,16 +308,61 @@
      <attribute name="title">
       <string>Pressure</string>
      </attribute>
+     <widget class="QCustomPlot" name="pressureGraph" native="true">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>1291</width>
+        <height>791</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_6">
+     <attribute name="title">
+      <string>Temperature</string>
+     </attribute>
+     <widget class="QCustomPlot" name="tempGraph" native="true">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>9</y>
+        <width>1301</width>
+        <height>791</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_3">
      <attribute name="title">
       <string>Pitch</string>
      </attribute>
+     <widget class="QCustomPlot" name="pitchGraph" native="true">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>1301</width>
+        <height>791</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_4">
      <attribute name="title">
       <string>Roll</string>
      </attribute>
+     <widget class="QCustomPlot" name="rollGraph" native="true">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>1301</width>
+        <height>791</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_5">
      <attribute name="title">
@@ -319,8 +373,8 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>830</y>
+      <x>90</x>
+      <y>870</y>
       <width>321</width>
       <height>61</height>
      </rect>
@@ -333,8 +387,125 @@
       <bold>true</bold>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 0, 0);</string>
+    </property>
     <property name="text">
      <string>CALIBRATE</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="sammardgif">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>380</y>
+      <width>451</width>
+      <height>451</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="battery">
+    <property name="geometry">
+     <rect>
+      <x>1420</x>
+      <y>60</y>
+      <width>197</width>
+      <height>46</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Battery Voltage:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="batteryValue">
+    <property name="geometry">
+     <rect>
+      <x>1624</x>
+      <y>60</y>
+      <width>196</width>
+      <height>46</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="mouseTracking">
+     <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: black;
+border-color: rgb(85, 255, 0);
+color: rgb(85, 255, 0);
+border-width: 3px;
+border-style: solid;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="state">
+    <property name="geometry">
+     <rect>
+      <x>990</x>
+      <y>60</y>
+      <width>197</width>
+      <height>46</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Probe State:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="stateValue">
+    <property name="geometry">
+     <rect>
+      <x>1194</x>
+      <y>60</y>
+      <width>196</width>
+      <height>46</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="mouseTracking">
+     <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: black;
+border-color: rgb(85, 255, 0);
+color: rgb(85, 255, 0);
+border-width: 3px;
+border-style: solid;</string>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

@@ -9,6 +9,8 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDateTime>
+#include <QPixmap>
+#include <QMap>
 
 
 
@@ -17,11 +19,26 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->teamId->setText("5608");
-    ui->missionTime->setText("68");
-    ui->packetCount->setText("67");
-    ui->gpsTime->setText("15:8:20");
-    ui->gpsSatellites->setText("10");
+    ui->teamId->setText("----");
+    ui->missionTime->setText("----");
+    ui->packetCount->setText("----");
+    ui->gpsTime->setText("----");
+    ui->gpsSatellites->setText("----");
+    ui->batteryValue->setText("----");
+    ui->stateValue->setText("----");
+    ui->sammardgif->setScaledContents(true);
+    ui->sammardgif->setMask((new QPixmap("Sammard.gif"))->mask());
+    ui->sammardgif->show();
+    QMovie *movie = new QMovie("Sammard.gif");
+    ui->sammardgif->setMovie(movie);
+    movie->start();
+
+    ui->altitudeGraph->addGraph();
+    ui->pressureGraph->addGraph();
+    ui->tempGraph->addGraph();
+    ui->rollGraph->addGraph();
+    ui->pitchGraph->addGraph();
+
 
     xbee_is_available = false;
     xbee_port_name = "";
@@ -30,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //This part of the code is to Identify the Vendor ID & the Product ID for Serial Communication
     //Testing Code
-    /*
+/*
         qDebug() << "Number of available ports: " << QSerialPortInfo::availablePorts().length();
         foreach(const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts()){
             qDebug() << "Has vendor ID: " << serialPortInfo.hasVendorIdentifier();
@@ -42,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 qDebug() << "Product ID: " << serialPortInfo.productIdentifier();
             }
         }
-    */
+*/
 
 
 //This part is to check if the xbee is connected on to the specified port
@@ -61,20 +78,19 @@ MainWindow::MainWindow(QWidget *parent) :
         //To open and configure the serialport
         qDebug() << "Found the XBee Port!!";
         xbee->setPortName(xbee_port_name);
-        xbee->open(QSerialPort::ReadOnly);
+        xbee->open(QSerialPort::ReadWrite);
         xbee->setBaudRate(QSerialPort::Baud9600);
         xbee->setDataBits(QSerialPort::Data8);
         xbee->setParity(QSerialPort::NoParity);
         xbee->setStopBits(QSerialPort::OneStop); //One and a Half Stop is only for the windows platform
         xbee->setFlowControl(QSerialPort::NoFlowControl);
         QObject::connect(xbee,SIGNAL(readyRead()),this, SLOT(readSerial()));
-    }else{
+    }
+    else{
         //To give error message if not available
         qDebug() << "The XBee is not connected to the Computer";
         QMessageBox::critical(this, "Serial Port Error", "Couldn't find the XBee!");
     }
-
-
 }
 
 MainWindow::~MainWindow()
@@ -87,60 +103,82 @@ MainWindow::~MainWindow()
 
 void MainWindow::readSerial()
 {
-    qDebug() << "Serial Port Works";
+    //qDebug() << "Serial Port Works";
+    semiColon = serialBuffer.split(";");
+/*
     serialData = xbee->readAll();
     serialBuffer += QString::fromStdString(serialData.toStdString());
+    serialData.clear();
     qDebug() << serialBuffer;
+*/
+    if(semiColon.length() <= 1){
+        serialData = xbee->readAll();
+        serialBuffer += QString::fromStdString(serialData.toStdString());
+        serialData.clear();
+        semiColon = serialBuffer.split(";");
+    }
+    else{
+        semiColon = serialBuffer.split(";");
+        bufferSplit = semiColon[0].split(",");
+        if(bufferSplit.length() == 17){
+            MainWindow::parseData();
+        }
+        //qDebug() << bufferSplit;
+        serialBuffer.clear();
+        serialBuffer = semiColon[1];
+        serialData = xbee->readAll();
+        serialBuffer += QString::fromStdString(serialData.toStdString());
+        serialData.clear();
+        bufferSplit.clear();
+        semiColon.clear();
+    }
 
-    //parseData();
-
-    //qDebug() << bufferSplit;
-
-    //serialData.clear();
-    //qDeleteAll(serialBuffer.begin(), serialBuffer.end());
-    //serialBuffer.clear();
 }
 
 
 void MainWindow::parseData()
 {
-    bufferSplit = serialBuffer.split(",");
-    teamId = bufferSplit[1];
-    missionTime = bufferSplit[2];
-    packetCount = bufferSplit[3];
-    altitude = bufferSplit[4];
-    pressure = bufferSplit[5];
-    temp = bufferSplit[6];
-    voltage = bufferSplit[7];
-    gpsTime = bufferSplit[8];
-    gpsLatitude = bufferSplit[9];
-    gpsLongitude = bufferSplit[10];
-    gpsAltitude = bufferSplit[11];
-    gpsSats = bufferSplit[12];
-    pitch = bufferSplit[13];
-    roll = bufferSplit[14];
-    rpm = bufferSplit[15];
-    softwareState = bufferSplit[16];
-    bonusDirection = bufferSplit[17];
+    if(bufferSplit[0] == "\r\n5601")
+        bufferSplit[0] = "5601";
 
-    updateData();
-    writeData();
-    //qDeleteAll(bufferSplit.begin(), bufferSplit.end());
-    bufferSplit.clear();
-    serialBuffer.clear();
+    if(bufferSplit[0] == "5601"){
+        teamId = bufferSplit[0];
+        missionTime = bufferSplit[1];
+        packetCount = bufferSplit[2];
+        altitude = bufferSplit[3];
+        pressure = bufferSplit[4];
+        temp = bufferSplit[5];
+        voltage = bufferSplit[6];
+        gpsTime = bufferSplit[7];
+        gpsLatitude = bufferSplit[8];
+        gpsLongitude = bufferSplit[9];
+        gpsAltitude = bufferSplit[10];
+        gpsSats = bufferSplit[11];
+        pitch = bufferSplit[12];
+        roll = bufferSplit[13];
+        rpm = bufferSplit[14];
+        softwareState = bufferSplit[15];
+        bonusDirection = bufferSplit[16];
+        MainWindow::updateData();
+    }
+    MainWindow::writeData();
+    qDebug() << bufferSplit;
 }
 
 
 void MainWindow::writeData()
 {
     QFile file("data.csv");
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
+    if (!file.open(QIODevice::Append | QIODevice::Text)){
         QMessageBox::warning(this,"Writing in file Error","File is not open");
     }
 
     QTextStream out(&file);
-    out << serialBuffer << "\n";
-    file.flush();
+    for(int i=0;i<17;i++){
+        out << bufferSplit[i] <<",";
+        file.flush();
+    }
+    out << "\n";
     file.close();
 }
 
@@ -148,71 +186,118 @@ void MainWindow::writeData()
 void MainWindow::updateData()
 {
     ui->teamId->setText(teamId);
-    ui->missionTime->setText(missionTime);
-    ui->packetCount->setText(packetCount);
+    ui->missionTime->setText(missionTime+" Seconds");
+    ui->packetCount->setText(packetCount+" Packets");
     ui->gpsTime->setText(gpsTime);
     ui->gpsSatellites->setText(gpsSats);
-    plot();
+    ui->batteryValue->setText(voltage+" Volts");
+
+    if(softwareState == "G")
+        ui->stateValue->setText("Launch Pad");
+    else if(softwareState == "A")
+        ui->stateValue->setText("Acending");
+    else if(softwareState == "D")
+        ui->stateValue->setText("Decending");
+    else if(softwareState == "P")
+        ui->stateValue->setText("Probe Deployed");
+    else if(softwareState == "L")
+        ui->stateValue->setText("Landed");
+    else
+        ui->stateValue->setText("UNKNOWN");
+
+    if(packetCount == "1"){
+        if(!ui->altitudeGraph->graph(0)->data().isNull())
+            ui->altitudeGraph->graph(0)->data()->clear();
+        if(!ui->pressureGraph->graph(0)->data().isNull())
+            ui->pressureGraph->graph(0)->data()->clear();
+        if(!ui->rollGraph->graph(0)->data().isNull())
+            ui->rollGraph->graph(0)->data()->clear();
+        if(!ui->pitchGraph->graph(0)->data().isNull())
+            ui->pitchGraph->graph(0)->data()->clear();
+        if(!ui->tempGraph->graph(0)->data().isNull())
+            ui->tempGraph->graph(0)->data()->clear();
+    }
+
+
+    altitudePlot();
+    pressurePlot();
+    tempPlot();
+    rollPlot();
+    pitchPlot();
 }
 
 
-void MainWindow::plot()
+void MainWindow::altitudePlot()
 {
-    ui->altitudeGraph->addGraph(); // blue line
-    ui->altitudeGraph->graph(0)->setPen(QPen(QColor(40, 110, 255)));
-
-    QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
-    timeTicker->setTimeFormat("%h:%m:%s");
-    ui->altitudeGraph->xAxis->setTicker(timeTicker);
+    ui->altitudeGraph->graph(0)->addData(missionTime.toDouble(), altitude.toDouble());
+    ui->altitudeGraph->graph(0)->setPen(QPen(Qt::blue)); //blue line
+    ui->altitudeGraph->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross));
     ui->altitudeGraph->axisRect()->setupFullAxesBox();
-    ui->altitudeGraph->yAxis->setRange(0, 1000); //Maximum altitude that the CanSat can reach
-
-    // make left and bottom axes transfer their ranges to right and top axes:
-    connect(ui->altitudeGraph->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->altitudeGraph->xAxis2, SLOT(setRange(QCPRange)));
-    connect(ui->altitudeGraph->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->altitudeGraph->yAxis2, SLOT(setRange(QCPRange)));
-
-    // setup a timer that repeatedly calls MainWindow::realtimeDataSlot:
-    connect(&dataTimer, SIGNAL(timeout()), this, SLOT(realtimeDataSlot()));
-    dataTimer.start(0); // Interval 0 means to refresh as fast as possible
-}
-
-
-void MainWindow::realtimeDataSlot(){
-    static QTime time(QTime::currentTime());
-    // calculate two new data points:
-    double key = time.elapsed()/1000.0; // time elapsed since start of demo, in seconds
-    static double lastPointKey = 0;
-    if (key-lastPointKey > 0.002) // at most add point every 2 ms
-    {
-      // add data to lines:
-      ui->altitudeGraph->graph(0)->addData(key, altitude.toDouble());
-      //ui->altitudeGraph->graph(1)->addData(key, qCos(key)+qrand()/RAND_MAX*0.5*qSin(key/0.4364));
-      //rescale value (vertical) axis to fit the current data:
-      ui->altitudeGraph->graph(0)->rescaleValueAxis();
-      //ui->altitudeGraph->graph(1)->rescaleValueAxis(true);
-      lastPointKey = key;
-    }
-    // make key axis range scroll with the data (at a constant range size of 8):
-    ui->altitudeGraph->xAxis->setRange(key, 8, Qt::AlignRight);
+    ui->altitudeGraph->xAxis->setRange(0,450);
+    ui->altitudeGraph->yAxis->setRange(0,50);
+    ui->altitudeGraph->xAxis->setLabel("Time in Seconds");
+    ui->altitudeGraph->yAxis->setLabel("Altitude");
     ui->altitudeGraph->replot();
+}
 
-    // calculate frames per second:
-    static double lastFpsKey;
-    static int frameCount;
-    ++frameCount;
-    if (key-lastFpsKey > 2) // average fps over 2 seconds
-    {
-      ui->statusBar->showMessage(
-            QString("%1 FPS, Total Data points: %2").arg(frameCount/(key-lastFpsKey), 0, 'f', 0).arg(ui->altitudeGraph->graph(0)->data()->size()));
-      lastFpsKey = key;
-      frameCount = 0;
-    }
+void MainWindow::pressurePlot()
+{
+    ui->pressureGraph->graph(0)->addData(missionTime.toDouble(), pressure.toDouble());
+    ui->pressureGraph->graph(0)->setPen(QPen(Qt::black)); //black line
+    ui->pressureGraph->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot));
+    ui->pressureGraph->axisRect()->setupFullAxesBox();
+    ui->pressureGraph->xAxis->setRange(0,450);
+    ui->pressureGraph->yAxis->setRange(97000,99000);
+    ui->pressureGraph->xAxis->setLabel("Time in Seconds");
+    ui->pressureGraph->yAxis->setLabel("Pressure");
+    ui->pressureGraph->replot();
+}
 
+void MainWindow::tempPlot()
+{
+    ui->tempGraph->graph(0)->addData(missionTime.toDouble(), temp.toDouble());
+    ui->tempGraph->graph(0)->setPen(QPen(Qt::blue)); //blue line
+    ui->tempGraph->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+    ui->tempGraph->axisRect()->setupFullAxesBox();
+    ui->tempGraph->xAxis->setRange(0,450);
+    ui->tempGraph->yAxis->setRange(20,60); //Degree celsius
+    ui->tempGraph->xAxis->setLabel("Time in Seconds");
+    ui->tempGraph->yAxis->setLabel("Temperature");
+    ui->tempGraph->replot();
+}
+
+void MainWindow::rollPlot()
+{
+    ui->rollGraph->graph(0)->addData(missionTime.toDouble(), roll.toDouble());
+    ui->rollGraph->graph(0)->setPen(QPen(Qt::black)); //black line
+    ui->rollGraph->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+    ui->rollGraph->axisRect()->setupFullAxesBox();
+    ui->rollGraph->xAxis->setRange(0,450);
+    ui->rollGraph->yAxis->setRange(-360,360);
+    ui->rollGraph->xAxis->setLabel("Time in Seconds");
+    ui->rollGraph->yAxis->setLabel("Roll Values");
+    ui->rollGraph->replot();
+}
+
+void MainWindow::pitchPlot()
+{
+    ui->pitchGraph->graph(0)->addData(missionTime.toDouble(), pitch.toDouble());
+    ui->pitchGraph->graph(0)->setPen(QPen(Qt::red)); //red line
+    ui->pitchGraph->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+    ui->pitchGraph->axisRect()->setupFullAxesBox();
+    ui->pitchGraph->xAxis->setRange(0,450);
+    ui->pitchGraph->yAxis->setRange(-360,360);
+    ui->pitchGraph->xAxis->setLabel("Time in Seconds");
+    ui->pitchGraph->yAxis->setLabel("Pitch Values");
+    ui->pitchGraph->replot();
 }
 
 
 
-
-
+void MainWindow::on_pushButton_clicked()
+{
+    QMessageBox::information(this,"Calibration Command","The Clibration Command has been sent");
+    xbee->write("T");
+}
 
 
