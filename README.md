@@ -29,4 +29,7 @@ altitude using air pressure, external temperature, battery voltage, GPS position
 and auto-gyro blade spin rate. When the science payload lands, all telemetry transmission
 shall stop and a located audio beacon shall activate.
 
-### The working functionality of the flight and ground control system(GCS) integrated
+### Flight software and ground control system(GCS) integrated
+![GUI_working GIF](GUI_working.gif)
+
+##### To find out more about my work and team visit http://teamsammard.in/
