@@ -32,4 +32,4 @@ shall stop and a located audio beacon shall activate.
 ### Flight software and ground control system(GCS) integrated
 ![GUI_working GIF](GUI_working.gif)
 
-##### To find out more about my work and team visit http://teamsammard.in/
+##### To find out more about my work and team visit http://teamsammard.com/
